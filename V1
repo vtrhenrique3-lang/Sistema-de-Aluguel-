@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Aluguéis</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=EB+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F0E8;
+    --surface: #FFFDF8;
+    --surface2: #F0EBE0;
+    --border: #E2D9C8;
+    --text: #1C1917;
+    --muted: #78716C;
+    --accent: #16A34A;
+    --accent-dark: #14532D;
+    --airton: #2563EB;
+    --tatiana: #7C3AED;
+    --patricia: #DC2626;
+    --shadow: 0 2px 8px rgba(28,25,23,0.08);
+    --shadow-lg: 0 8px 32px rgba(28,25,23,0.14);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--text);
+    color: #fff;
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+  .logo span { color: #86EFAC; }
+  .header-sub { font-size: 12px; color: #A8A29E; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 36px 24px 60px; }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 14px;
+  }
+
+  /* ── INPUTS ── */
+  .input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .field {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(22,163,74,.1); }
+  .field label { display: block; font-size: 10px; font-weight: 600; letter-spacing: .8px; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+  .field input, .field select {
+    width: 100%; border: none; background: transparent;
+    font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 500;
+    color: var(--text); outline: none;
+  }
+  .field input::placeholder { color: #C8BEB4; }
+  .prefix { display: flex; align-items: baseline; gap: 3px; }
+  .prefix-text { font-size: 12px; color: var(--muted); }
+
+  /* ── SUMMARY ── */
+  .summary {
+    background: var(--text); color: #fff;
+    border-radius: 12px; padding: 18px 28px;
+    display: flex; gap: 28px; align-items: center;
+    margin-bottom: 32px;
+  }
+  .s-item { flex: 1; }
+  .s-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: .5; font-weight: 600; }
+  .s-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; margin-top: 3px; }
+  .s-val.green { color: #86EFAC; }
+  .s-div { width: 1px; background: rgba(255,255,255,.12); height: 40px; }
+
+  /* ── TENANT CARDS ── */
+  .tenants-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 36px;
+  }
+
+  .tenant-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .card-header { padding: 16px 18px 12px; display: flex; align-items: center; gap: 10px; }
+  .avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: #fff; flex-shrink: 0;
+  }
+  .avatar.airton   { background: var(--airton); }
+  .avatar.tatiana  { background: var(--tatiana); }
+  .avatar.patricia { background: var(--patricia); }
+  .card-name { font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 700; }
+  .card-sub  { font-size: 11px; color: var(--muted); }
+
+  .venc-row {
+    margin: 0 18px 12px;
+    background: var(--surface2); border-radius: 8px;
+    padding: 7px 12px; display: flex; align-items: center; gap: 6px;
+  }
+  .venc-row label { font-size: 10px; color: var(--muted); font-weight: 600; white-space: nowrap; }
+  .venc-row input { border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text); outline: none; width: 100%; }
+
+  .card-body { padding: 0 18px 4px; }
+  .line-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  .line-item:last-child { border-bottom: none; }
+  .line-label { color: var(--muted); }
+  .line-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .card-total {
+    margin: 0 18px 18px;
+    background: var(--text); color: #fff;
+    border-radius: 8px; padding: 12px 16px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .card-total .lbl { font-size: 10px; font-weight: 600; letter-spacing: .5px; opacity: .6; }
+  .card-total .val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+
+  /* ── RECEIPTS SECTION ── */
+  .receipts-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .btn-print-all {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 22px;
+    background: var(--text); color: #fff;
+    border: none; cursor: pointer; border-radius: 8px;
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .5px;
+    transition: background .2s;
+  }
+  .btn-print-all:hover { background: #333; }
+
+  .receipts-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+
+  /* ── RECIBO PAPER ── */
+  .recibo-wrap {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+
+  .recibo-accent { height: 5px; }
+  .recibo-accent.airton   { background: var(--airton); }
+  .recibo-accent.tatiana  { background: var(--tatiana); }
+  .recibo-accent.patricia { background: var(--patricia); }
+
+  .recibo-paper { padding: 24px 24px 18px; }
+
+  .recibo-paper h1 {
+    font-family: 'EB Garamond', serif;
+    font-size: 30px; font-weight: 500;
+    text-align: center; letter-spacing: 1px;
+    color: var(--text); margin-bottom: 10px;
+  }
+
+  .recibo-subtitle {
+    text-align: center;
+    font-size: 13px; color: var(--muted); line-height: 1.5;
+    margin-bottom: 18px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .recibo-table { width: 100%; border-collapse: collapse; margin-bottom: 14px; }
+  .recibo-table td { padding: 8px 0; font-size: 14px; }
+  .recibo-table td:last-child { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .recibo-table tr:not(:last-child) td { border-bottom: 1px dashed #EDE9E0; }
+  .recibo-table .lbl { color: var(--muted); }
+
+  .recibo-total-row {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--text); color: #fff;
+    border-radius: 8px; padding: 12px 16px;
+  }
+  .recibo-total-row .lbl { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; opacity: .6; }
+  .recibo-total-row .val { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; }
+
+  .recibo-footer {
+    text-align: center; font-size: 11px; color: #C8BEB4;
+    margin-top: 14px; padding-top: 12px;
+    border-top: 1px dashed #EDE9E0;
+    letter-spacing: .3px;
+  }
+
+  .recibo-actions {
+    display: flex; padding: 10px 14px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .btn-print-one {
+    flex: 1; padding: 8px; border: none; cursor: pointer;
+    border-radius: 6px; font-family: 'Syne', sans-serif;
+    font-size: 11px; font-weight: 700; letter-spacing: .5px;
+    background: var(--text); color: #fff;
+    transition: opacity .15s;
+  }
+  .btn-print-one:hover { opacity: .8; }
+
+  /* ── PRINT ── */
+  #printArea { display: none; }
+
+  @media print {
+    body > * { display: none !important; }
+    #printArea { display: block !important; }
+
+    #printArea .print-page {
+      width: 100%;
+      padding: 48px 60px;
+      page-break-after: always;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #printArea .print-page:last-child { page-break-after: avoid; }
+    #printArea .print-page-inner { width: 100%; max-width: 500px; }
+    #printArea .recibo-actions { display: none !important; }
+    #printArea .recibo-accent  { height: 8px !important; }
+    #printArea .recibo-paper h1 { font-size: 38px !important; }
+    #printArea .recibo-subtitle { font-size: 14px !important; }
+    #printArea .recibo-table td { font-size: 15px !important; padding: 10px 0 !important; }
+    #printArea .recibo-total-row .val { font-size: 22px !important; }
+  }
+
+  @media(max-width:760px) {
+    .input-row, .tenants-grid, .receipts-grid { grid-template-columns: 1fr; }
+    .s-div { display: none; }
+    header { padding: 16px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Gestão de<span> Aluguéis</span></div>
+  <div class="header-sub">Sistema de Recibos</div>
+</header>
+
+<main>
+
+  <p class="section-title">Valores do Mês</p>
+  <div class="input-row">
+    <div class="field">
+      <label>Mês ref.</label>
+      <select id="mesRef">
+        <option value="01">Janeiro</option>
+        <option value="02">Fevereiro</option>
+        <option value="03" selected>Março</option>
+        <option value="04">Abril</option>
+        <option value="05">Maio</option>
+        <option value="06">Junho</option>
+        <option value="07">Julho</option>
+        <option value="08">Agosto</option>
+        <option value="09">Setembro</option>
+        <option value="10">Outubro</option>
+        <option value="11">Novembro</option>
+        <option value="12">Dezembro</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Ano ref.</label>
+      <input type="number" id="anoRef" value="2026" min="2020" max="2099">
+    </div>
+    <div class="field">
+      <label>💧 Água — Total</label>
+      <div class="prefix"><span class="prefix-text">R$</span><input type="number" id="totalAgua" placeholder="0,00" step="0.01" min="0"></div>
+    </div>
+    <div class="field">
+      <label>⚡ Luz — Total</label>
+      <div class="prefix"><span class="prefix-text">R$</span><input type="number" id="totalLuz" placeholder="0,00" step="0.01" min="0"></div>
+    </div>
+    <div class="field">
+      <label>🌐 Internet (opc.)</label>
+      <div class="prefix"><span class="prefix-text">R$</span><input type="number" id="totalInternet" placeholder="0,00" step="0.01" min="0" value="0"></div>
+    </div>
+    <div class="field">
+      <label>🚿 Fossa (opc.)</label>
+      <div class="prefix"><span class="prefix-text">R$</span><input type="number" id="totalFossa" placeholder="0,00" step="0.01" min="0" value="0"></div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="s-item"><div class="s-label">Água Total</div><div class="s-val" id="s-agua">R$ —</div></div>
+    <div class="s-div"></div>
+    <div class="s-item"><div class="s-label">Luz Total</div><div class="s-val" id="s-luz">R$ —</div></div>
+    <div class="s-div"></div>
+    <div class="s-item"><div class="s-label">Total 3 Inquilinos</div><div class="s-val green" id="s-total">R$ —</div></div>
+  </div>
+
+  <!-- Cards -->
+  <p class="section-title">Cálculo por Inquilino</p>
+  <div class="tenants-grid">
+
+    <div class="tenant-card">
+      <div class="card-header">
+        <div class="avatar airton">A</div>
+        <div><div class="card-name">Airton</div><div class="card-sub">Aluguel R$ 1.200,00 · Vcto 25</div></div>
+      </div>
+      <div class="venc-row"><label>Vencimento:</label><input type="text" id="vencAirton" value="25/03/2026"></div>
+      <div class="card-body">
+        <div class="line-item"><span class="line-label">Aluguel</span><span class="line-value">R$ 1.200,00</span></div>
+        <div class="line-item"><span class="line-label">Água (2/7)</span><span class="line-value" id="c-agua-airton">—</span></div>
+        <div class="line-item"><span class="line-label">Luz (2/9)</span><span class="line-value" id="c-luz-airton">—</span></div>
+        <div class="line-item" id="ci-airton" style="display:none"><span class="line-label">Internet (1/3)</span><span class="line-value" id="c-int-airton">—</span></div>
+        <div class="line-item" id="cf-airton" style="display:none"><span class="line-label">Fossa (1/3)</span><span class="line-value" id="c-fos-airton">—</span></div>
+      </div>
+      <div class="card-total"><span class="lbl">TOTAL</span><span class="val" id="c-tot-airton">—</span></div>
+    </div>
+
+    <div class="tenant-card">
+      <div class="card-header">
+        <div class="avatar tatiana">T</div>
+        <div><div class="card-name">Tatiana</div><div class="card-sub">Aluguel R$ 1.300,00 · Vcto 10</div></div>
+      </div>
+      <div class="venc-row"><label>Vencimento:</label><input type="text" id="vencTatiana" value="10/03/2026"></div>
+      <div class="card-body">
+        <div class="line-item"><span class="line-label">Aluguel</span><span class="line-value">R$ 1.300,00</span></div>
+        <div class="line-item"><span class="line-label">Água (3/7)</span><span class="line-value" id="c-agua-tatiana">—</span></div>
+        <div class="line-item"><span class="line-label">Luz (3/9)</span><span class="line-value" id="c-luz-tatiana">—</span></div>
+        <div class="line-item" id="ci-tatiana" style="display:none"><span class="line-label">Internet (1/3)</span><span class="line-value" id="c-int-tatiana">—</span></div>
+        <div class="line-item" id="cf-tatiana" style="display:none"><span class="line-label">Fossa (1/3)</span><span class="line-value" id="c-fos-tatiana">—</span></div>
+      </div>
+      <div class="card-total"><span class="lbl">TOTAL</span><span class="val" id="c-tot-tatiana">—</span></div>
+    </div>
+
+    <div class="tenant-card">
+      <div class="card-header">
+        <div class="avatar patricia">P</div>
+        <div><div class="card-name">Patrícia</div><div class="card-sub">Aluguel R$ 800,00 · Vcto 10</div></div>
+      </div>
+      <div class="venc-row"><label>Vencimento:</label><input type="text" id="vencPatricia" value="10/03/2026"></div>
+      <div class="card-body">
+        <div class="line-item"><span class="line-label">Aluguel</span><span class="line-value">R$ 800,00</span></div>
+        <div class="line-item"><span class="line-label">Água (2/7)</span><span class="line-value" id="c-agua-patricia">—</span></div>
+        <div class="line-item"><span class="line-label">Luz (2/9)</span><span class="line-value" id="c-luz-patricia">—</span></div>
+        <div class="line-item" id="ci-patricia" style="display:none"><span class="line-label">Internet (1/3)</span><span class="line-value" id="c-int-patricia">—</span></div>
+        <div class="line-item" id="cf-patricia" style="display:none"><span class="line-label">Fossa (1/3)</span><span class="line-value" id="c-fos-patricia">—</span></div>
+      </div>
+      <div class="card-total"><span class="lbl">TOTAL</span><span class="val" id="c-tot-patricia">—</span></div>
+    </div>
+
+  </div>
+
+  <!-- ── RECIBOS ── -->
+  <div class="receipts-header">
+    <p class="section-title" style="margin-bottom:0">Recibos para Impressão</p>
+    <button class="btn-print-all" onclick="imprimirTodos()">🖨️&nbsp; Imprimir os 3 Recibos</button>
+  </div>
+
+  <div class="receipts-grid">
+
+    <!-- Airton -->
+    <div class="recibo-wrap" id="rw-airton">
+      <div class="recibo-accent airton"></div>
+      <div class="recibo-paper">
+        <h1>Recibo</h1>
+        <div class="recibo-subtitle" id="r-sub-airton">Preencha os valores acima</div>
+        <table class="recibo-table"><tbody id="r-lines-airton"></tbody></table>
+        <div class="recibo-total-row"><span class="lbl">TOTAL</span><span class="val" id="r-tot-airton">—</span></div>
+        <div class="recibo-footer">Gerado em <span id="r-date-airton"></span></div>
+      </div>
+      <div class="recibo-actions">
+        <button class="btn-print-one" onclick="imprimirUm('airton')">🖨️ Imprimir Airton</button>
+      </div>
+    </div>
+
+    <!-- Tatiana -->
+    <div class="recibo-wrap" id="rw-tatiana">
+      <div class="recibo-accent tatiana"></div>
+      <div class="recibo-paper">
+        <h1>Recibo</h1>
+        <div class="recibo-subtitle" id="r-sub-tatiana">Preencha os valores acima</div>
+        <table class="recibo-table"><tbody id="r-lines-tatiana"></tbody></table>
+        <div class="recibo-total-row"><span class="lbl">TOTAL</span><span class="val" id="r-tot-tatiana">—</span></div>
+        <div class="recibo-footer">Gerado em <span id="r-date-tatiana"></span></div>
+      </div>
+      <div class="recibo-actions">
+        <button class="btn-print-one" onclick="imprimirUm('tatiana')">🖨️ Imprimir Tatiana</button>
+      </div>
+    </div>
+
+    <!-- Patricia -->
+    <div class="recibo-wrap" id="rw-patricia">
+      <div class="recibo-accent patricia"></div>
+      <div class="recibo-paper">
+        <h1>Recibo</h1>
+        <div class="recibo-subtitle" id="r-sub-patricia">Preencha os valores acima</div>
+        <table class="recibo-table"><tbody id="r-lines-patricia"></tbody></table>
+        <div class="recibo-total-row"><span class="lbl">TOTAL</span><span class="val" id="r-tot-patricia">—</span></div>
+        <div class="recibo-footer">Gerado em <span id="r-date-patricia"></span></div>
+      </div>
+      <div class="recibo-actions">
+        <button class="btn-print-one" onclick="imprimirUm('patricia')">🖨️ Imprimir Patrícia</button>
+      </div>
+    </div>
+
+  </div>
+
+</main>
+
+<!-- Print container (hidden, shown only on @media print) -->
+<div id="printArea"></div>
+
+<script>
+const brl   = v => v.toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+const today = () => new Date().toLocaleDateString('pt-BR');
+
+const cfg = {
+  airton:   { nome:'Airton',   aluguel:1200, aguaQ:2, aguaT:7, luzQ:2, luzT:9, vencId:'vencAirton' },
+  tatiana:  { nome:'Tatiana',  aluguel:1300, aguaQ:3, aguaT:7, luzQ:3, luzT:9, vencId:'vencTatiana' },
+  patricia: { nome:'Patrícia', aluguel:800,  aguaQ:2, aguaT:7, luzQ:2, luzT:9, vencId:'vencPatricia' },
+};
+
+function getInputs() {
+  return {
+    agua:     parseFloat(document.getElementById('totalAgua').value)     || 0,
+    luz:      parseFloat(document.getElementById('totalLuz').value)      || 0,
+    internet: parseFloat(document.getElementById('totalInternet').value) || 0,
+    fossa:    parseFloat(document.getElementById('totalFossa').value)    || 0,
+    mes:      document.getElementById('mesRef').value,
+    ano:      document.getElementById('anoRef').value,
+  };
+}
+
+function calcular(id, inp) {
+  const c = cfg[id];
+  const agua     = inp.agua     * c.aguaQ / c.aguaT;
+  const luz      = inp.luz      * c.luzQ  / c.luzT;
+  const internet = inp.internet / 3;
+  const fossa    = inp.fossa    / 3;
+  return { agua, luz, internet, fossa, total: c.aluguel + agua + luz + internet + fossa };
+}
+
+function atualizar() {
+  const inp = getInputs();
+  const ids = ['airton','tatiana','patricia'];
+
+  // Summary
+  document.getElementById('s-agua').textContent  = brl(inp.agua);
+  document.getElementById('s-luz').textContent   = brl(inp.luz);
+  document.getElementById('s-total').textContent = brl(ids.reduce((a, id) => a + calcular(id, inp).total, 0));
+
+  ids.forEach(id => {
+    const v    = calcular(id, inp);
+    const c    = cfg[id];
+    const venc = document.getElementById(c.vencId).value;
+    const ref  = `${inp.mes}/${inp.ano}`;
+
+    // Card
+    document.getElementById(`c-agua-${id}`).textContent = brl(v.agua);
+    document.getElementById(`c-luz-${id}`).textContent  = brl(v.luz);
+    document.getElementById(`c-int-${id}`).textContent  = brl(v.internet);
+    document.getElementById(`c-fos-${id}`).textContent  = brl(v.fossa);
+    document.getElementById(`c-tot-${id}`).textContent  = brl(v.total);
+    document.getElementById(`ci-${id}`).style.display   = inp.internet > 0 ? '' : 'none';
+    document.getElementById(`cf-${id}`).style.display   = inp.fossa    > 0 ? '' : 'none';
+
+    // Recibo
+    document.getElementById(`r-sub-${id}`).textContent =
+      `Aluguel: ${c.nome} referente ao mês ${ref} com vencimento em ${venc}`;
+
+    const linhas = [
+      ['Água',    brl(v.agua)],
+      ['Luz',     brl(v.luz)],
+      ...(inp.internet > 0 ? [['Internet', brl(v.internet)]] : []),
+      ...(inp.fossa    > 0 ? [['Fossa',    brl(v.fossa)]]    : []),
+      ['Aluguel', brl(c.aluguel)],
+    ];
+    document.getElementById(`r-lines-${id}`).innerHTML = linhas
+      .map(([l, val]) => `<tr><td class="lbl">${l}</td><td>${val}</td></tr>`).join('');
+
+    document.getElementById(`r-tot-${id}`).textContent  = brl(v.total);
+    document.getElementById(`r-date-${id}`).textContent = today();
+  });
+}
+
+// Sync vencimentos
+function syncVenc() {
+  const m = document.getElementById('mesRef').value;
+  const a = document.getElementById('anoRef').value;
+  document.getElementById('vencAirton').value   = `25/${m}/${a}`;
+  document.getElementById('vencTatiana').value  = `10/${m}/${a}`;
+  document.getElementById('vencPatricia').value = `10/${m}/${a}`;
+}
+
+['totalAgua','totalLuz','totalInternet','totalFossa','anoRef'].forEach(id =>
+  document.getElementById(id).addEventListener('input', atualizar));
+document.getElementById('mesRef').addEventListener('change', () => { syncVenc(); atualizar(); });
+document.getElementById('anoRef').addEventListener('input',  () => { syncVenc(); atualizar(); });
+['vencAirton','vencTatiana','vencPatricia'].forEach(id =>
+  document.getElementById(id).addEventListener('input', atualizar));
+
+atualizar();
+
+// ── IMPRESSÃO ──────────────────────────────────────────────────────────────
+function buildPage(id) {
+  const inner = document.getElementById(`rw-${id}`).innerHTML;
+  const page  = document.createElement('div');
+  page.className = 'print-page';
+  page.innerHTML  = `<div class="print-page-inner">${inner}</div>`;
+  return page;
+}
+
+function imprimirUm(id) {
+  const area = document.getElementById('printArea');
+  area.innerHTML = '';
+  area.appendChild(buildPage(id));
+  window.print();
+}
+
+function imprimirTodos() {
+  const area = document.getElementById('printArea');
+  area.innerHTML = '';
+  ['airton','tatiana','patricia'].forEach(id => area.appendChild(buildPage(id)));
+  window.print();
+}
+</script>
+</body>
+</html>
