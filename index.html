@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Aluguéis</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, Helvetica, sans-serif; background: #F5F0E8; color: #1C1917; min-height: 100vh; }
+
+  header { background: #1C1917; color: #fff; padding: 18px 32px; display: flex; align-items: center; justify-content: space-between; }
+  header .logo { font-size: 20px; font-weight: 700; }
+  header .logo span { color: #86EFAC; }
+  header .sub { font-size: 12px; color: #A8A29E; }
+
+  main { max-width: 1060px; margin: 0 auto; padding: 28px 16px 56px; }
+
+  .sec-title { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #78716C; margin-bottom: 12px; }
+
+  .input-row { display: grid; grid-template-columns: repeat(6,1fr); gap: 10px; margin-bottom: 20px; }
+  .field { background: #FFFDF8; border: 1.5px solid #E2D9C8; border-radius: 10px; padding: 10px 13px; }
+  .field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: #78716C; margin-bottom: 4px; }
+  .field input, .field select { width: 100%; border: none; background: transparent; font-family: Arial, Helvetica, sans-serif; font-size: 16px; font-weight: 500; color: #1C1917; outline: none; }
+  .prefix { display: flex; align-items: baseline; gap: 3px; }
+  .prefix-sym { font-size: 12px; color: #78716C; }
+
+  .summary { background: #1C1917; color: #fff; border-radius: 12px; padding: 16px 24px; display: flex; gap: 24px; align-items: center; margin-bottom: 26px; }
+  .s-item { flex: 1; }
+  .s-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: .5; font-weight: 700; }
+  .s-val { font-size: 21px; font-weight: 700; margin-top: 3px; }
+  .s-val.green { color: #86EFAC; }
+  .s-divider { width: 1px; background: rgba(255,255,255,.15); height: 36px; }
+
+  .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 26px; }
+
+  /* Tenant Cards */
+  .tenant-card { background: #FFFDF8; border: 1.5px solid #E2D9C8; border-radius: 14px; overflow: hidden; }
+  .card-head { padding: 14px 16px 10px; display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; color: #fff; flex-shrink: 0; }
+  .card-name { font-size: 16px; font-weight: 700; }
+  .card-sub { font-size: 11px; color: #78716C; }
+  .venc-row { margin: 0 14px 10px; background: #F0EBE0; border-radius: 8px; padding: 6px 10px; display: flex; align-items: center; gap: 6px; }
+  .venc-row label { font-size: 10px; color: #78716C; font-weight: 700; white-space: nowrap; }
+  .venc-row input { border: none; background: transparent; font-family: Arial; font-size: 13px; font-weight: 500; color: #1C1917; outline: none; width: 100%; }
+  .card-lines { padding: 0 14px 4px; }
+  .line-item { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid #EBEBEB; font-size: 13px; }
+  .line-item .lbl { color: #555; }
+  .line-item .val { font-weight: 700; }
+  .card-total { margin: 0 14px 16px; background: #1C1917; color: #fff; border-radius: 8px; padding: 11px 14px; }
+  .card-total .t-lbl { font-size: 10px; opacity: .6; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px; }
+  .card-total .t-val { font-size: 20px; font-weight: 700; }
+
+  /* Receipts */
+  .receipts-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .btn-all { display: flex; align-items: center; gap: 8px; padding: 9px 18px; background: #1C1917; color: #fff; border: none; cursor: pointer; border-radius: 8px; font-family: Arial; font-size: 13px; font-weight: 700; }
+  .btn-all:hover { background: #333; }
+
+  .recibo-wrap { background: #fff; border: 1px solid #E2D9C8; border-radius: 12px; overflow: hidden; }
+  .recibo-bar { height: 5px; }
+  .recibo-body { padding: 20px 20px 14px; }
+  .recibo-title { font-size: 18px; font-weight: 700; text-align: center; letter-spacing: 1.5px; text-transform: uppercase; color: #1C1917; margin-bottom: 8px; }
+  .recibo-sub { text-align: center; font-size: 12px; color: #555; line-height: 1.7; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 2px solid #E2D9C8; }
+  .recibo-sub strong { color: #1C1917; }
+  .recibo-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+  .recibo-table td { padding: 7px 0; font-size: 13px; border-bottom: 1px solid #EBEBEB; }
+  .recibo-table .td-lbl { color: #555; }
+  .recibo-table .td-val { text-align: right; font-weight: 700; color: #1C1917; }
+  .recibo-total { background: #1C1917; color: #fff; border-radius: 8px; padding: 12px 16px; }
+  .recibo-total .rt-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; opacity: .6; margin-bottom: 5px; }
+  .recibo-total .rt-row { display: flex; justify-content: space-between; align-items: center; }
+  .recibo-total .rt-value { font-size: 22px; font-weight: 700; }
+  .recibo-total .rt-desc { font-size: 10px; opacity: .4; text-align: right; line-height: 1.6; }
+  .recibo-footer { text-align: center; font-size: 10px; color: #AAA; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #E2D9C8; line-height: 1.6; }
+  .recibo-actions { display: flex; padding: 10px 12px; border-top: 1px solid #E2D9C8; background: #F0EBE0; }
+  .btn-one { flex: 1; padding: 8px; border: none; cursor: pointer; border-radius: 6px; font-family: Arial; font-size: 11px; font-weight: 700; background: #1C1917; color: #fff; }
+  .btn-one:hover { background: #333; }
+
+  @media(max-width:760px) {
+    .input-row, .grid3 { grid-template-columns: 1fr; }
+    .s-divider { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Gestão de <span>Aluguéis</span></div>
+  <div class="sub">Sistema de Recibos</div>
+</header>
+
+<main>
+
+  <div class="sec-title">Valores do Mês</div>
+  <div class="input-row">
+    <div class="field">
+      <label>Mês ref.</label>
+      <select id="mesRef">
+        <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+        <option value="03" selected>Março</option><option value="04">Abril</option>
+        <option value="05">Maio</option><option value="06">Junho</option>
+        <option value="07">Julho</option><option value="08">Agosto</option>
+        <option value="09">Setembro</option><option value="10">Outubro</option>
+        <option value="11">Novembro</option><option value="12">Dezembro</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Ano ref.</label>
+      <input type="number" id="anoRef" value="2026">
+    </div>
+    <div class="field">
+      <label>💧 Água — Total</label>
+      <div class="prefix"><span class="prefix-sym">R$</span><input type="number" id="totalAgua" placeholder="0,00" step="0.01"></div>
+    </div>
+    <div class="field">
+      <label>⚡ Luz — Total</label>
+      <div class="prefix"><span class="prefix-sym">R$</span><input type="number" id="totalLuz" placeholder="0,00" step="0.01"></div>
+    </div>
+    <div class="field">
+      <label>🌐 Internet (opc.)</label>
+      <div class="prefix"><span class="prefix-sym">R$</span><input type="number" id="totalInternet" placeholder="0,00" step="0.01" value="0"></div>
+    </div>
+    <div class="field">
+      <label>🚿 Fossa (opc.)</label>
+      <div class="prefix"><span class="prefix-sym">R$</span><input type="number" id="totalFossa" placeholder="0,00" step="0.01" value="0"></div>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="s-item"><div class="s-label">Água Total</div><div class="s-val" id="s-agua">R$ 0,00</div></div>
+    <div class="s-divider"></div>
+    <div class="s-item"><div class="s-label">Luz Total</div><div class="s-val" id="s-luz">R$ 0,00</div></div>
+    <div class="s-divider"></div>
+    <div class="s-item"><div class="s-label">Total 3 Inquilinos</div><div class="s-val green" id="s-total">R$ 0,00</div></div>
+  </div>
+
+  <div class="sec-title">Cálculo por Inquilino</div>
+  <div class="grid3">
+    <div class="tenant-card">
+      <div class="card-head">
+        <div class="avatar" style="background:#2563EB">A</div>
+        <div><div class="card-name">Airton</div><div class="card-sub">Aluguel R$ 1.200,00 · Vcto 25</div></div>
+      </div>
+      <div class="venc-row"><label>Vencimento:</label><input type="text" id="vencAirton" value="25/03/2026"></div>
+      <div class="card-lines">
+        <div class="line-item"><span class="lbl">Aluguel</span><span class="val">R$ 1.200,00</span></div>
+        <div class="line-item"><span class="lbl">Água (2/7)</span><span class="val" id="c-agua-airton">R$ 0,00</span></div>
+        <div class="line-item"><span class="lbl">Luz (2/9)</span><span class="val" id="c-luz-airton">R$ 0,00</span></div>
+        <div class="line-item" id="ci-airton" style="display:none"><span class="lbl">Internet (1/3)</span><span class="val" id="c-int-airton">R$ 0,00</span></div>
+        <div class="line-item" id="cf-airton" style="display:none"><span class="lbl">Fossa (1/3)</span><span class="val" id="c-fos-airton">R$ 0,00</span></div>
+      </div>
+      <div class="card-total"><div class="t-lbl">Valor Total a Pagar</div><div class="t-val" id="c-tot-airton">R$ 1.200,00</div></div>
+    </div>
+
+    <div class="tenant-card">
+      <div class="card-head">
+        <div class="avatar" style="background:#7C3AED">T</div>
+        <div><div class="card-name">Tatiana</div><div class="card-sub">Aluguel R$ 1.300,00 · Vcto 10</div></div>
+      </div>
+      <div class="venc-row"><label>Vencimento:</label><input type="text" id="vencTatiana" value="10/03/2026"></div>
+      <div class="card-lines">
+        <div class="line-item"><span class="lbl">Aluguel</span><span class="val">R$ 1.300,00</span></div>
+        <div class="line-item"><span class="lbl">Água (3/7)</span><span class="val" id="c-agua-tatiana">R$ 0,00</span></div>
+        <div class="line-item"><span class="lbl">Luz (3/9)</span><span class="val" id="c-luz-tatiana">R$ 0,00</span></div>
+        <div class="line-item" id="ci-tatiana" style="display:none"><span class="lbl">Internet (1/3)</span><span class="val" id="c-int-tatiana">R$ 0,00</span></div>
+        <div class="line-item" id="cf-tatiana" style="display:none"><span class="lbl">Fossa (1/3)</span><span class="val" id="c-fos-tatiana">R$ 0,00</span></div>
+      </div>
+      <div class="card-total"><div class="t-lbl">Valor Total a Pagar</div><div class="t-val" id="c-tot-tatiana">R$ 1.300,00</div></div>
+    </div>
+
+    <div class="tenant-card">
+      <div class="card-head">
+        <div class="avatar" style="background:#DC2626">P</div>
+        <div><div class="card-name">Patrícia</div><div class="card-sub">Aluguel R$ 800,00 · Vcto 10</div></div>
+      </div>
+      <div class="venc-row"><label>Vencimento:</label><input type="text" id="vencPatricia" value="10/03/2026"></div>
+      <div class="card-lines">
+        <div class="line-item"><span class="lbl">Aluguel</span><span class="val">R$ 800,00</span></div>
+        <div class="line-item"><span class="lbl">Água (2/7)</span><span class="val" id="c-agua-patricia">R$ 0,00</span></div>
+        <div class="line-item"><span class="lbl">Luz (2/9)</span><span class="val" id="c-luz-patricia">R$ 0,00</span></div>
+        <div class="line-item" id="ci-patricia" style="display:none"><span class="lbl">Internet (1/3)</span><span class="val" id="c-int-patricia">R$ 0,00</span></div>
+        <div class="line-item" id="cf-patricia" style="display:none"><span class="lbl">Fossa (1/3)</span><span class="val" id="c-fos-patricia">R$ 0,00</span></div>
+      </div>
+      <div class="card-total"><div class="t-lbl">Valor Total a Pagar</div><div class="t-val" id="c-tot-patricia">R$ 800,00</div></div>
+    </div>
+  </div>
+
+  <div class="receipts-header">
+    <div class="sec-title" style="margin-bottom:0">Recibos para Impressão</div>
+    <button class="btn-all" onclick="imprimirTodos()">🖨️ Imprimir os 3 Recibos</button>
+  </div>
+
+  <div class="grid3">
+    <!-- Airton -->
+    <div class="recibo-wrap">
+      <div class="recibo-bar" style="background:#2563EB"></div>
+      <div class="recibo-body">
+        <div class="recibo-title">Recibo de Aluguel</div>
+        <div class="recibo-sub" id="r-sub-airton">Preencha os valores acima</div>
+        <table class="recibo-table"><tbody id="r-lines-airton"></tbody></table>
+        <div class="recibo-total">
+          <div class="rt-label">Valor Total a Pagar</div>
+          <div class="rt-row"><div class="rt-value" id="r-tot-airton">—</div><div class="rt-desc" id="r-desc-airton"></div></div>
+        </div>
+        <div class="recibo-footer">Gerado em <span id="r-date-airton"></span><br>Guarde este documento como comprovante de pagamento</div>
+      </div>
+      <div class="recibo-actions"><button class="btn-one" onclick="imprimirUm('airton')">🖨️ Imprimir Airton</button></div>
+    </div>
+
+    <!-- Tatiana -->
+    <div class="recibo-wrap">
+      <div class="recibo-bar" style="background:#7C3AED"></div>
+      <div class="recibo-body">
+        <div class="recibo-title">Recibo de Aluguel</div>
+        <div class="recibo-sub" id="r-sub-tatiana">Preencha os valores acima</div>
+        <table class="recibo-table"><tbody id="r-lines-tatiana"></tbody></table>
+        <div class="recibo-total">
+          <div class="rt-label">Valor Total a Pagar</div>
+          <div class="rt-row"><div class="rt-value" id="r-tot-tatiana">—</div><div class="rt-desc" id="r-desc-tatiana"></div></div>
+        </div>
+        <div class="recibo-footer">Gerado em <span id="r-date-tatiana"></span><br>Guarde este documento como comprovante de pagamento</div>
+      </div>
+      <div class="recibo-actions"><button class="btn-one" onclick="imprimirUm('tatiana')">🖨️ Imprimir Tatiana</button></div>
+    </div>
+
+    <!-- Patricia -->
+    <div class="recibo-wrap">
+      <div class="recibo-bar" style="background:#DC2626"></div>
+      <div class="recibo-body">
+        <div class="recibo-title">Recibo de Aluguel</div>
+        <div class="recibo-sub" id="r-sub-patricia">Preencha os valores acima</div>
+        <table class="recibo-table"><tbody id="r-lines-patricia"></tbody></table>
+        <div class="recibo-total">
+          <div class="rt-label">Valor Total a Pagar</div>
+          <div class="rt-row"><div class="rt-value" id="r-tot-patricia">—</div><div class="rt-desc" id="r-desc-patricia"></div></div>
+        </div>
+        <div class="recibo-footer">Gerado em <span id="r-date-patricia"></span><br>Guarde este documento como comprovante de pagamento</div>
+      </div>
+      <div class="recibo-actions"><button class="btn-one" onclick="imprimirUm('patricia')">🖨️ Imprimir Patrícia</button></div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const brl = v => v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'});
+const today = () => new Date().toLocaleDateString('pt-BR');
+
+const CFG = {
+  airton:   {nome:'Airton',   aluguel:1200, aguaQ:2, aguaT:7, luzQ:2, luzT:9},
+  tatiana:  {nome:'Tatiana',  aluguel:1300, aguaQ:3, aguaT:7, luzQ:3, luzT:9},
+  patricia: {nome:'Patrícia', aluguel:800,  aguaQ:2, aguaT:7, luzQ:2, luzT:9},
+};
+
+function getVals() {
+  return {
+    agua:     parseFloat(document.getElementById('totalAgua').value)     || 0,
+    luz:      parseFloat(document.getElementById('totalLuz').value)      || 0,
+    internet: parseFloat(document.getElementById('totalInternet').value) || 0,
+    fossa:    parseFloat(document.getElementById('totalFossa').value)    || 0,
+    mes:      document.getElementById('mesRef').value,
+    ano:      document.getElementById('anoRef').value,
+  };
+}
+
+function calc(id, v) {
+  const c = CFG[id];
+  const a = v.agua * c.aguaQ / c.aguaT;
+  const l = v.luz  * c.luzQ  / c.luzT;
+  const i = v.internet / 3;
+  const f = v.fossa / 3;
+  return {agua:a, luz:l, internet:i, fossa:f, total:c.aluguel+a+l+i+f};
+}
+
+function atualizar() {
+  const v = getVals();
+  const ids = ['airton','tatiana','patricia'];
+
+  document.getElementById('s-agua').textContent  = brl(v.agua);
+  document.getElementById('s-luz').textContent   = brl(v.luz);
+  document.getElementById('s-total').textContent = brl(ids.reduce((a,id)=>a+calc(id,v).total,0));
+
+  ids.forEach(id => {
+    const c = CFG[id];
+    const r = calc(id, v);
+    const venc = document.getElementById('venc'+id.charAt(0).toUpperCase()+id.slice(1)).value;
+    const ref  = v.mes+'/'+v.ano;
+
+    // Cards
+    document.getElementById('c-agua-'+id).textContent = brl(r.agua);
+    document.getElementById('c-luz-'+id).textContent  = brl(r.luz);
+    document.getElementById('c-int-'+id).textContent  = brl(r.internet);
+    document.getElementById('c-fos-'+id).textContent  = brl(r.fossa);
+    document.getElementById('c-tot-'+id).textContent  = brl(r.total);
+    document.getElementById('ci-'+id).style.display   = v.internet > 0 ? '' : 'none';
+    document.getElementById('cf-'+id).style.display   = v.fossa    > 0 ? '' : 'none';
+
+    // Recibo subtítulo
+    document.getElementById('r-sub-'+id).innerHTML =
+      '<strong>'+c.nome+'</strong> — Referente ao mês <strong>'+ref+'</strong><br>Vencimento: <strong>'+venc+'</strong>';
+
+    // Linhas
+    const linhas = [
+      ['Água', brl(r.agua)],
+      ['Luz',  brl(r.luz)],
+      ...(v.internet > 0 ? [['Internet', brl(r.internet)]] : []),
+      ...(v.fossa    > 0 ? [['Fossa',    brl(r.fossa)]]    : []),
+      ['Aluguel', brl(c.aluguel)],
+    ];
+    document.getElementById('r-lines-'+id).innerHTML = linhas
+      .map(([l,val]) => '<tr><td class="td-lbl">'+l+'</td><td class="td-val">'+val+'</td></tr>').join('');
+
+    document.getElementById('r-tot-'+id).textContent  = brl(r.total);
+    document.getElementById('r-desc-'+id).innerHTML   = 'Aluguel + Água + Luz'+(v.internet>0?'<br>+ Internet':'')+(v.fossa>0?'<br>+ Fossa':'');
+    document.getElementById('r-date-'+id).textContent = today();
+  });
+}
+
+function syncVenc() {
+  const m = document.getElementById('mesRef').value;
+  const a = document.getElementById('anoRef').value;
+  document.getElementById('vencAirton').value   = '25/'+m+'/'+a;
+  document.getElementById('vencTatiana').value  = '10/'+m+'/'+a;
+  document.getElementById('vencPatricia').value = '10/'+m+'/'+a;
+}
+
+['totalAgua','totalLuz','totalInternet','totalFossa','anoRef'].forEach(id =>
+  document.getElementById(id).addEventListener('input', atualizar));
+document.getElementById('mesRef').addEventListener('change', () => { syncVenc(); atualizar(); });
+document.getElementById('anoRef').addEventListener('input',  () => { syncVenc(); atualizar(); });
+['vencAirton','vencTatiana','vencPatricia'].forEach(id =>
+  document.getElementById(id).addEventListener('input', atualizar));
+
+atualizar();
+
+// ── IMPRESSÃO ─────────────────────────────────────────────────────────────
+function buildHTML(id) {
+  const v    = getVals();
+  const c    = CFG[id];
+  const r    = calc(id, v);
+  const venc = document.getElementById('venc'+id.charAt(0).toUpperCase()+id.slice(1)).value;
+  const ref  = v.mes+'/'+v.ano;
+  const colors = {airton:'#2563EB', tatiana:'#7C3AED', patricia:'#DC2626'};
+  const linhas = [
+    ['Água', brl(r.agua)], ['Luz', brl(r.luz)],
+    ...(v.internet > 0 ? [['Internet', brl(r.internet)]] : []),
+    ...(v.fossa    > 0 ? [['Fossa',    brl(r.fossa)]]    : []),
+    ['Aluguel', brl(c.aluguel)],
+  ];
+  return `
+  <div style="font-family:Arial,Helvetica,sans-serif;max-width:480px;margin:0 auto;padding:40px 36px;background:#fff;border:1px solid #ddd;border-radius:8px;">
+    <div style="height:6px;background:${colors[id]};border-radius:4px;margin-bottom:28px;"></div>
+    <h1 style="text-align:center;font-size:20px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#1C1917;margin:0 0 10px;">Recibo de Aluguel</h1>
+    <p style="text-align:center;font-size:14px;color:#555;line-height:1.7;margin:0 0 18px;padding-bottom:14px;border-bottom:2px solid #E2D9C8;">
+      <strong style="color:#1C1917;">${c.nome}</strong> — Referente ao mês <strong style="color:#1C1917;">${ref}</strong><br>
+      Vencimento: <strong style="color:#1C1917;">${venc}</strong>
+    </p>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:18px;">
+      ${linhas.map(([l,val])=>`<tr><td style="padding:10px 0;font-size:15px;color:#555;border-bottom:1px solid #EBEBEB;">${l}</td><td style="padding:10px 0;font-size:15px;font-weight:700;text-align:right;border-bottom:1px solid #EBEBEB;color:#1C1917;">${val}</td></tr>`).join('')}
+    </table>
+    <div style="background:#1C1917;color:#fff;border-radius:8px;padding:16px 20px;">
+      <div style="font-size:10px;letter-spacing:1.5px;text-transform:uppercase;opacity:.6;margin-bottom:6px;">Valor Total a Pagar</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:28px;font-weight:700;">${brl(r.total)}</div>
+        <div style="font-size:10px;opacity:.4;text-align:right;line-height:1.6;">Aluguel + Água + Luz${v.internet>0?'<br>+ Internet':''}${v.fossa>0?'<br>+ Fossa':''}</div>
+      </div>
+    </div>
+    <p style="text-align:center;font-size:11px;color:#AAA;margin:14px 0 0;padding-top:12px;border-top:1px dashed #E2D9C8;line-height:1.6;">
+      Gerado em ${today()}<br>Guarde este documento como comprovante de pagamento
+    </p>
+  </div>`;
+}
+
+function abrirJanela(htmlList) {
+  const win = window.open('', '_blank', 'width=720,height=960');
+  if (!win) { alert('Permita pop-ups neste site para imprimir.'); return; }
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Recibos</title>
+    <style>
+      *{box-sizing:border-box;margin:0;padding:0;}
+      body{font-family:Arial,Helvetica,sans-serif;background:#f0ede8;padding:32px;}
+      .page{page-break-after:always;padding:24px 0;display:flex;justify-content:center;}
+      .page:last-child{page-break-after:avoid;}
+      @media print{body{background:#fff;padding:0;}.page{padding:16px 0;}}
+    </style>
+  </head><body>
+    ${htmlList.map(h=>`<div class="page">${h}</div>`).join('')}
+    <script>window.onload=function(){window.print();};<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+function imprimirUm(id) { abrirJanela([buildHTML(id)]); }
+function imprimirTodos() { abrirJanela(['airton','tatiana','patricia'].map(buildHTML)); }
+</script>
+</body>
+</html>
+
